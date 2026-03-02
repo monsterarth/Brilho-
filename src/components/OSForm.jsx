@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { Calendar, Clock, Tag, Plus, Check } from 'lucide-react'
+import { Calendar, Clock, Tag, Plus, Check, ChevronDown } from 'lucide-react'
 import { format } from 'date-fns'
+import { useServicos } from '../hooks/useServicos'
 import { cn } from '../lib/utils'
 
 export function OSForm({ onSuccess, onCancel, dataInicial = new Date() }) {
@@ -9,6 +10,7 @@ export function OSForm({ onSuccess, onCancel, dataInicial = new Date() }) {
     const [errorMsg, setErrorMsg] = useState('')
     const [searchFeedback, setSearchFeedback] = useState('')
     const [placaExists, setPlacaExists] = useState(false)
+    const { servicos: servicosPredefinidos } = useServicos()
 
     // Form State
     const [placa, setPlaca] = useState('')
@@ -180,22 +182,48 @@ export function OSForm({ onSuccess, onCancel, dataInicial = new Date() }) {
                     </div>
 
                     {servicos.map((servico, index) => (
-                        <div key={index} className="flex gap-2 items-center animate-fade-in group">
-                            <input
-                                type="text" required placeholder="Nome do serviço"
-                                value={servico.nome} onChange={e => handleServicoChange(index, 'nome', e.target.value)}
-                                className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none text-sm font-medium focus:border-brand-500"
-                            />
-                            <input
-                                type="number" required placeholder="R$" step="0.01" min="0"
-                                value={servico.preco} onChange={e => handleServicoChange(index, 'preco', e.target.value)}
-                                className="w-24 px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none text-sm font-bold text-dark-900 focus:border-brand-500"
-                            />
-                            {servicos.length > 1 && (
-                                <button type="button" onClick={() => handleRemoveServico(index)} className="p-2 text-gray-400 hover:text-red-500 rounded transition-colors opacity-50 hover:opacity-100">
-                                    &times;
-                                </button>
-                            )}
+                        <div key={index} className="flex flex-col gap-2 animate-fade-in group bg-white border border-gray-100 p-3 rounded-xl shadow-sm">
+                            <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <select
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        onChange={(e) => {
+                                            if (!e.target.value) return;
+                                            const [n, p] = e.target.value.split('|');
+                                            handleServicoChange(index, 'nome', n);
+                                            handleServicoChange(index, 'preco', p);
+                                        }}
+                                        value=""
+                                    >
+                                        <option value="">Selecione do Catálogo...</option>
+                                        {servicosPredefinidos.map(sp => (
+                                            <option key={sp.id} value={`${sp.nome}|${sp.preco}`}>
+                                                {sp.nome} - R$ {Number(sp.preco).toFixed(2)}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-between text-sm font-medium text-gray-500 hover:bg-gray-100 transition-colors pointer-events-none">
+                                        Selecione do Catálogo... <ChevronDown className="w-4 h-4" />
+                                    </div>
+                                </div>
+                                {servicos.length > 1 && (
+                                    <button type="button" onClick={() => handleRemoveServico(index)} className="w-10 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                                        &times;
+                                    </button>
+                                )}
+                            </div>
+                            <div className="flex gap-2 items-center">
+                                <input
+                                    type="text" required placeholder="Ou digite o nome do serviço..."
+                                    value={servico.nome} onChange={e => handleServicoChange(index, 'nome', e.target.value)}
+                                    className="flex-1 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none text-sm font-medium focus:border-brand-500 focus:bg-white transition-colors"
+                                />
+                                <input
+                                    type="number" required placeholder="R$" step="0.01" min="0"
+                                    value={servico.preco} onChange={e => handleServicoChange(index, 'preco', e.target.value)}
+                                    className="w-24 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none text-sm font-bold text-dark-900 focus:border-brand-500 focus:bg-white transition-colors"
+                                />
+                            </div>
                         </div>
                     ))}
 

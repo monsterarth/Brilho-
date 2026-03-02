@@ -4,6 +4,8 @@ import { Agenda } from '../components/Agenda'
 import { BottomNav } from '../components/BottomNav'
 import { ClienteForm } from '../components/ClienteForm'
 import { OSForm } from '../components/OSForm'
+import { ServicosManager } from '../components/ServicosManager'
+import { ListaClientes } from '../components/ListaClientes'
 import { format } from 'date-fns'
 import { Calendar as CalendarIcon, Car, Plus, LogOut } from 'lucide-react'
 import { cn } from '../lib/utils'
@@ -79,11 +81,11 @@ export function Dashboard() {
                 </section>
 
                 <section className={cn("transition-opacity duration-300", activeTab === 'clientes' ? 'opacity-100 block' : 'hidden')}>
-                    <div className="flex flex-col items-center justify-center py-12 px-6 text-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50/50">
-                        <Car className="w-12 h-12 text-gray-300 mb-4" />
-                        <h3 className="text-lg font-bold text-gray-700">Seção em Construção</h3>
-                        <p className="text-sm text-gray-500 mt-2">Mas você pode criar clientes pelo botão azul abaixo.</p>
-                    </div>
+                    <ListaClientes />
+                </section>
+
+                <section className={cn("transition-opacity duration-300", activeTab === 'ajustes' ? 'opacity-100 block' : 'hidden')}>
+                    <ServicosManager />
                 </section>
             </main>
 

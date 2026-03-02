@@ -10,10 +10,19 @@ export function ClienteForm({ onSuccess, onCancel }) {
     const [nome, setNome] = useState('')
     const [whatsapp, setWhatsapp] = useState('')
 
-    // Veiculo State
-    const [placa, setPlaca] = useState('')
-    const [modelo, setModelo] = useState('')
-    const [cor, setCor] = useState('')
+    // Veiculos State
+    const [veiculos, setVeiculos] = useState([{ placa: '', modelo: '', cor: '' }])
+
+    const handleAddVeiculo = () => setVeiculos([...veiculos, { placa: '', modelo: '', cor: '' }])
+
+    const handleVeiculoChange = (index, field, value) => {
+        const novos = [...veiculos]
+        if (field === 'placa') value = value.toUpperCase()
+        novos[index][field] = value
+        setVeiculos(novos)
+    }
+
+    const handleRemoveVeiculo = (index) => setVeiculos(veiculos.filter((_, i) => i !== index))
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -43,18 +52,21 @@ export function ClienteForm({ onSuccess, onCancel }) {
                 clienteId = newCliente.id
             }
 
+            // Insert all veiculos
+            const veiculosData = veiculos.map(v => ({
+                placa: v.placa.toUpperCase(),
+                modelo: v.modelo,
+                cor: v.cor,
+                cliente_id: clienteId
+            }))
+
             const { error: veiculoError } = await supabase
                 .from('veiculos')
-                .insert([{
-                    placa: placa.toUpperCase(),
-                    modelo,
-                    cor,
-                    cliente_id: clienteId
-                }])
+                .insert(veiculosData)
 
             if (veiculoError) {
                 if (veiculoError.code === '23505') {
-                    throw new Error('Esta placa já está cadastrada no sistema.')
+                    throw new Error('Uma das placas já está cadastrada no sistema.')
                 }
                 throw veiculoError
             }
@@ -122,34 +134,58 @@ export function ClienteForm({ onSuccess, onCancel }) {
 
                 <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
 
-                {/* Veiculo Section */}
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-4">
-                        <div className="w-6 h-6 rounded-md bg-brand-50 text-brand-600 flex items-center justify-center">
-                            <Car className="w-3.5 h-3.5" />
+                {/* Veiculos Section */}
+                <div className="space-y-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-md bg-brand-50 text-brand-600 flex items-center justify-center">
+                                <Car className="w-3.5 h-3.5" />
+                            </div>
+                            <h3 className="text-sm font-bold text-dark-800 uppercase tracking-widest">Garagem (Veículos)</h3>
                         </div>
-                        <h3 className="text-sm font-bold text-dark-800 uppercase tracking-widest">Veículo</h3>
+                        <button
+                            type="button"
+                            onClick={handleAddVeiculo}
+                            className="bg-brand-100 text-brand-700 font-bold text-xs uppercase px-3 py-1.5 rounded-lg hover:bg-brand-200 transition-colors"
+                        >
+                            + Veículo
+                        </button>
                     </div>
 
-                    <div>
-                        <input
-                            type="text" required value={placa} onChange={e => setPlaca(e.target.value)}
-                            placeholder="Placa (ABC1234)" maxLength={7}
-                            className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none uppercase font-bold tracking-widest placeholder:normal-case placeholder:font-medium placeholder:tracking-normal placeholder:text-gray-400"
-                        />
-                    </div>
+                    <div className="space-y-4">
+                        {veiculos.map((veiculo, index) => (
+                            <div key={index} className="space-y-3 bg-white p-3 rounded-xl border border-gray-200 relative group animate-fade-in">
+                                {veiculos.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveVeiculo(index)}
+                                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-xs font-bold shadow-sm hover:bg-red-200 transition-colors"
+                                    >
+                                        &times;
+                                    </button>
+                                )}
+                                <div>
+                                    <input
+                                        type="text" required value={veiculo.placa} onChange={e => handleVeiculoChange(index, 'placa', e.target.value)}
+                                        placeholder="Placa (ABC1234)" maxLength={7}
+                                        className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none uppercase font-bold tracking-widest placeholder:normal-case placeholder:font-medium placeholder:tracking-normal placeholder:text-gray-400"
+                                    />
+                                </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <input
-                            type="text" value={modelo} onChange={e => setModelo(e.target.value)}
-                            placeholder="Modelo (Ex: HB20)"
-                            className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none font-medium placeholder:text-gray-400"
-                        />
-                        <input
-                            type="text" value={cor} onChange={e => setCor(e.target.value)}
-                            placeholder="Cor (Ex: Prata)"
-                            className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none font-medium placeholder:text-gray-400"
-                        />
+                                <div className="grid grid-cols-2 gap-3">
+                                    <input
+                                        type="text" value={veiculo.modelo} onChange={e => handleVeiculoChange(index, 'modelo', e.target.value)}
+                                        placeholder="Modelo (Ex: HB20)"
+                                        className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none font-medium text-sm placeholder:text-gray-400"
+                                    />
+                                    <input
+                                        type="text" value={veiculo.cor} onChange={e => handleVeiculoChange(index, 'cor', e.target.value)}
+                                        placeholder="Cor (Ex: Prata)"
+                                        className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none font-medium text-sm placeholder:text-gray-400"
+                                    />
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
