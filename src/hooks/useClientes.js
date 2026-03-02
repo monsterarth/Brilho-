@@ -7,6 +7,18 @@ export function useClientes() {
 
     useEffect(() => {
         fetchClientes()
+
+        const channel = supabase
+            .channel('clientes_changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'clientes' }, () => {
+                fetchClientes()
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'veiculos' }, () => {
+                fetchClientes()
+            })
+            .subscribe()
+
+        return () => supabase.removeChannel(channel)
     }, [])
 
     const fetchClientes = async () => {

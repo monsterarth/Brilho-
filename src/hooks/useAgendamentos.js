@@ -9,17 +9,11 @@ export function useAgendamentos(filtroData) {
 
         // Realtime subscription
         const channel = supabase
-            .channel('agenda')
+            .channel('agenda_changes')
             .on('postgres_changes',
                 { event: '*', schema: 'public', table: 'agendamentos' },
-                (payload) => {
-                    if (payload.eventType === 'INSERT') setAgendamentos(p => [payload.new, ...p])
-                    if (payload.eventType === 'UPDATE') {
-                        setAgendamentos(p => p.map(a => a.id === payload.new.id ? payload.new : a))
-                    }
-                    if (payload.eventType === 'DELETE') {
-                        setAgendamentos(p => p.filter(a => a.id !== payload.old.id))
-                    }
+                () => {
+                    fetchAgendamentos()
                 }
             )
             .subscribe()

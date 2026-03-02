@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'CHERO - Gestão para Lava-Jato',
-        short_name: 'CHERO',
+        name: 'No Brilho - Gestão para Lava-Jato',
+        short_name: 'No Brilho',
         description: 'SaaS Mobile-First para controle e gestão de Lava-Jatos',
         theme_color: '#2563eb',
         background_color: '#f9fafb',

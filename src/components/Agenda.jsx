@@ -1,10 +1,28 @@
 import { useAgendamentos } from '../hooks/useAgendamentos'
+import { useFinanceiro } from '../hooks/useFinanceiro'
 import { WhatsAppButton } from './WhatsAppButton'
 import { Calendar, CheckCircle, Clock, MoreVertical, CreditCard } from 'lucide-react'
 import { cn } from '../lib/utils'
 
 export function Agenda({ dataSelecionada }) {
     const { agendamentos, updateStatus } = useAgendamentos(dataSelecionada)
+    const today = new Date()
+    const { addTransacao } = useFinanceiro(today.getMonth() + 1, today.getFullYear())
+
+    const handlePay = async (agendamento) => {
+        // Update OS status
+        await updateStatus(agendamento.id, 'pago')
+
+        // Categoria 1 (We assume the first category or we just leave null and let it be generic Receita)
+        // Auto generic transaction
+        await addTransacao({
+            descricao: `Serviço OS - ${agendamento.placa}`,
+            valor: agendamento.total,
+            tipo: 'receita',
+            data_transacao: today.toISOString().split('T')[0] + 'T12:00:00',
+            os_id: agendamento.id
+        })
+    }
 
     if (!agendamentos.length) {
         return (
@@ -102,7 +120,7 @@ export function Agenda({ dataSelecionada }) {
                                         message={`Olá! O veículo ${agendamento.placa} está PRONTO no Lava-Jato! Total: R$ ${agendamento.total}`}
                                     />
                                     <button
-                                        onClick={() => updateStatus(agendamento.id, 'pago')}
+                                        onClick={() => handlePay(agendamento)}
                                         className="flex-1 bg-green-500 text-white shadow-float py-3 px-4 rounded-xl text-xs font-bold hover:bg-green-600 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                                     >
                                         <CreditCard className="w-4 h-4" />

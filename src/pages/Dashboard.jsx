@@ -6,6 +6,8 @@ import { ClienteForm } from '../components/ClienteForm'
 import { OSForm } from '../components/OSForm'
 import { ServicosManager } from '../components/ServicosManager'
 import { ListaClientes } from '../components/ListaClientes'
+import { Financeiro } from '../components/Financeiro'
+import { TransacaoForm } from '../components/TransacaoForm'
 import { format } from 'date-fns'
 import { Calendar as CalendarIcon, Car, Plus, LogOut } from 'lucide-react'
 import { cn } from '../lib/utils'
@@ -18,17 +20,18 @@ export function Dashboard() {
     // Modal states
     const [isClienteModalOpen, setIsClienteModalOpen] = useState(false)
     const [isOSModalOpen, setIsOSModalOpen] = useState(false)
+    const [isTransacaoModalOpen, setIsTransacaoModalOpen] = useState(false)
 
     return (
         <div className="min-h-screen bg-background flex flex-col font-sans pb-24">
             {/* Premium Top App Bar */}
             <header className="bg-surface sticky top-0 z-30 px-6 py-4 flex justify-between items-center shadow-soft border-b border-gray-100">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-brand-600 text-white flex items-center justify-center shadow-md">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 text-white flex items-center justify-center shadow-md">
                         <Car className="w-5 h-5" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 className="text-xl font-bold tracking-tight text-dark-900 leading-none">CHERO</h1>
+                        <h1 className="text-xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-dark-900 to-brand-900 leading-none">NO BRILHO</h1>
                         <p className="text-[10px] font-semibold text-brand-600 uppercase tracking-widest mt-1">Lava-Jato</p>
                     </div>
                 </div>
@@ -49,10 +52,10 @@ export function Dashboard() {
                 <div className="mb-6 flex justify-between items-end">
                     <div>
                         <h2 className="text-2xl font-extrabold text-dark-900 tracking-tight">
-                            {activeTab === 'agenda' ? 'Agenda do Dia' : activeTab === 'clientes' ? 'Meus Clientes' : 'Ajustes'}
+                            {activeTab === 'agenda' ? 'Agenda do Dia' : activeTab === 'clientes' ? 'Meus Clientes' : activeTab === 'financeiro' ? 'Financeiro' : 'Ajustes'}
                         </h2>
                         <p className="text-sm font-medium text-gray-500 mt-1">
-                            {activeTab === 'agenda' ? 'Visão geral dos serviços' : activeTab === 'clientes' ? 'Gerenciamento de frota' : 'Configurações do App'}
+                            {activeTab === 'agenda' ? 'Visão geral dos serviços' : activeTab === 'clientes' ? 'Gerenciamento de frota' : activeTab === 'financeiro' ? 'Controle de Caixa' : 'Configurações do App'}
                         </p>
                     </div>
 
@@ -82,6 +85,10 @@ export function Dashboard() {
 
                 <section className={cn("transition-opacity duration-300", activeTab === 'clientes' ? 'opacity-100 block' : 'hidden')}>
                     <ListaClientes />
+                </section>
+
+                <section className={cn("transition-opacity duration-300", activeTab === 'financeiro' ? 'opacity-100 block' : 'hidden')}>
+                    <Financeiro onNovaTransacao={() => setIsTransacaoModalOpen(true)} />
                 </section>
 
                 <section className={cn("transition-opacity duration-300", activeTab === 'ajustes' ? 'opacity-100 block' : 'hidden')}>
@@ -130,6 +137,17 @@ export function Dashboard() {
                             dataInicial={new Date(dataSelecionada + 'T12:00:00')}
                             onSuccess={() => setIsOSModalOpen(false)}
                             onCancel={() => setIsOSModalOpen(false)}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {isTransacaoModalOpen && (
+                <div className="fixed inset-0 bg-dark-900/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center animation-fade-in p-0 sm:p-4">
+                    <div className="w-full max-w-lg animate-slide-up sm:animate-none max-h-[90vh] overflow-y-auto rounded-t-3xl sm:rounded-xl bg-gray-50 hide-scrollbar shadow-2xl">
+                        <TransacaoForm
+                            onSuccess={() => setIsTransacaoModalOpen(false)}
+                            onCancel={() => setIsTransacaoModalOpen(false)}
                         />
                     </div>
                 </div>

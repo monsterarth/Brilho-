@@ -1,10 +1,11 @@
-import { Calendar, Users, Settings, Plus } from 'lucide-react'
+import { Calendar, Users, Settings, Wallet } from 'lucide-react'
 import { cn } from '../lib/utils'
 
 export function BottomNav({ activeTab, setActiveTab }) {
     const tabs = [
         { id: 'agenda', icon: Calendar, label: 'Agenda' },
         { id: 'clientes', icon: Users, label: 'Clientes' },
+        { id: 'financeiro', icon: Wallet, label: 'Financeiro' },
         { id: 'ajustes', icon: Settings, label: 'Ajustes' },
     ]
 
